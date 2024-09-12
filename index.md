@@ -4,7 +4,7 @@ Welcome to the tools section of **McPolemic**. Below are some tools available fo
 
 ## Available Tools
 
-- [Speech Detection Tool](./speech-detection/index.html)  
+- [Speech Detection Tool](https://google.com/intl/en/chrome/demos/speech.html)
   A simple tool to detect and process speech in your browser.
 
 <!-- Add more tools below as needed -->
