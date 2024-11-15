@@ -14,7 +14,7 @@
             align-items: center;
         }
         button {
-            margin: 10px 0;
+            margin: 10px 5px;
             padding: 10px 20px;
             font-size: 16px;
             cursor: pointer;
@@ -22,9 +22,13 @@
             background-color: #0078d4;
             color: white;
             border-radius: 5px;
+            transition: background-color 0.3s;
         }
         button:hover {
             background-color: #005bb5;
+        }
+        button.copied {
+            background-color: #4caf50;
         }
         table {
             margin-top: 20px;
@@ -52,6 +56,11 @@
             height: 30px;
             font-size: 14px;
         }
+        .button-row {
+            display: flex;
+            justify-content: flex-end;
+            width: 80%;
+        }
     </style>
 </head>
 <body>
@@ -59,18 +68,28 @@
     <p>Copy cells from Google Sheets or Excel, then click the button below.</p>
     <button id="getClipboard">Get Clipboard Data</button>
     <div id="table-container"></div>
+    
     <textarea id="csv-output" readonly placeholder="Generated CSV will appear here..."></textarea>
-    <button id="downloadCSV" style="display: none;">Download CSV</button>
+    <div class="button-row">
+        <button id="copyCSV">Copy CSV</button>
+        <button id="downloadCSV" style="display: none;">Download CSV</button>
+    </div>
+    
     <input type="text" id="template-input" placeholder="Enter template string (e.g., 'For category ${row[0]}, the balance is ${row[1]}')">
     <textarea id="template-output" readonly placeholder="Generated output from template will appear here..."></textarea>
+    <div class="button-row">
+        <button id="copyTemplate">Copy Template Output</button>
+    </div>
 
     <script>
         const getClipboardButton = document.getElementById('getClipboard');
         const tableContainer = document.getElementById('table-container');
         const csvOutput = document.getElementById('csv-output');
         const downloadCSVButton = document.getElementById('downloadCSV');
+        const copyCSVButton = document.getElementById('copyCSV');
         const templateInput = document.getElementById('template-input');
         const templateOutput = document.getElementById('template-output');
+        const copyTemplateButton = document.getElementById('copyTemplate');
 
         let data = []; // Store parsed data globally
 
@@ -134,6 +153,20 @@
             URL.revokeObjectURL(url);
         }
 
+        async function copyToClipboard(content, button) {
+            try {
+                await navigator.clipboard.writeText(content);
+                button.textContent = 'Copied!';
+                button.classList.add('copied');
+                setTimeout(() => {
+                    button.textContent = button.id === 'copyCSV' ? 'Copy CSV' : 'Copy Template Output';
+                    button.classList.remove('copied');
+                }, 2000);
+            } catch (err) {
+                alert('Failed to copy to clipboard: ' + err.message);
+            }
+        }
+
         function updateTemplateOutput() {
             const template = templateInput.value;
             if (!template || data.length <= 1) {
@@ -156,6 +189,8 @@
 
         getClipboardButton.addEventListener('click', getClipboardData);
         templateInput.addEventListener('input', updateTemplateOutput);
+        copyCSVButton.addEventListener('click', () => copyToClipboard(csvOutput.value, copyCSVButton));
+        copyTemplateButton.addEventListener('click', () => copyToClipboard(templateOutput.value, copyTemplateButton));
     </script>
 </body>
 </html>
