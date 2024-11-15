@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clipboard to CSV Converter</title>
+    <script src="https://unpkg.com/papaparse@5.3.2/papaparse.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        button {
+            margin: 10px 0;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border: none;
+            background-color: #0078d4;
+            color: white;
+            border-radius: 5px;
+        }
+        button:hover {
+            background-color: #005bb5;
+        }
+        table {
+            margin-top: 20px;
+            border-collapse: collapse;
+            width: 80%;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f4f4f4;
+        }
+        textarea {
+            margin-top: 20px;
+            width: 80%;
+            height: 150px;
+            font-family: monospace;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+    <h1>Clipboard to CSV Converter</h1>
+    <p>Copy cells from Google Sheets or Excel, then click the button below.</p>
+    <button id="getClipboard">Get Clipboard Data</button>
+    <div id="table-container"></div>
+    <textarea id="csv-output" readonly placeholder="Generated CSV will appear here..."></textarea>
+    <button id="downloadCSV" style="display: none;">Download CSV</button>
+
+    <script>
+        const getClipboardButton = document.getElementById('getClipboard');
+        const tableContainer = document.getElementById('table-container');
+        const csvOutput = document.getElementById('csv-output');
+        const downloadCSVButton = document.getElementById('downloadCSV');
+
+        async function getClipboardData() {
+            try {
+                const text = await navigator.clipboard.readText();
+                
+                // Parse tab-delimited data
+                const rows = text.split('\n').filter(row => row.trim() !== '');
+                const data = rows.map(row => row.split('\t'));
+
+                // Display as HTML table
+                displayTable(data);
+
+                // Convert to CSV using PapaParse
+                const csv = Papa.unparse(data, { quotes: true });
+                csvOutput.value = csv;
+
+                // Show download button
+                downloadCSVButton.style.display = 'inline';
+                downloadCSVButton.onclick = () => downloadCSV(csv);
+            } catch (err) {
+                alert('Failed to read clipboard data: ' + err.message);
+            }
+        }
+
+        function displayTable(data) {
+            let tableHTML = '<table><thead><tr>';
+            const headers = data[0] || [];
+            headers.forEach(header => {
+                tableHTML += `<th>${escapeHTML(header)}</th>`;
+            });
+            tableHTML += '</tr></thead><tbody>';
+            for (let i = 1; i < data.length; i++) {
+                tableHTML += '<tr>';
+                data[i].forEach(cell => {
+                    tableHTML += `<td>${escapeHTML(cell)}</td>`;
+                });
+                tableHTML += '</tr>';
+            }
+            tableHTML += '</tbody></table>';
+            tableContainer.innerHTML = tableHTML;
+        }
+
+        function escapeHTML(str) {
+            return str
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
+        function downloadCSV(csvContent) {
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'clipboard.csv';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        getClipboardButton.addEventListener('click', getClipboardData);
+    </script>
+</body>
+</html>
