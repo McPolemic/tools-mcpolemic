@@ -39,12 +39,18 @@
         th {
             background-color: #f4f4f4;
         }
-        textarea {
+        textarea, input {
             margin-top: 20px;
             width: 80%;
-            height: 150px;
             font-family: monospace;
             white-space: pre-wrap;
+        }
+        textarea {
+            height: 150px;
+        }
+        input {
+            height: 30px;
+            font-size: 14px;
         }
     </style>
 </head>
@@ -55,12 +61,18 @@
     <div id="table-container"></div>
     <textarea id="csv-output" readonly placeholder="Generated CSV will appear here..."></textarea>
     <button id="downloadCSV" style="display: none;">Download CSV</button>
+    <input type="text" id="template-input" placeholder="Enter template string (e.g., 'For category ${row[0]}, the balance is ${row[1]}')">
+    <textarea id="template-output" readonly placeholder="Generated output from template will appear here..."></textarea>
 
     <script>
         const getClipboardButton = document.getElementById('getClipboard');
         const tableContainer = document.getElementById('table-container');
         const csvOutput = document.getElementById('csv-output');
         const downloadCSVButton = document.getElementById('downloadCSV');
+        const templateInput = document.getElementById('template-input');
+        const templateOutput = document.getElementById('template-output');
+
+        let data = []; // Store parsed data globally
 
         async function getClipboardData() {
             try {
@@ -68,7 +80,7 @@
                 
                 // Parse tab-delimited data
                 const rows = text.split('\n').filter(row => row.trim() !== '');
-                const data = rows.map(row => row.split('\t'));
+                data = rows.map(row => row.split('\t'));
 
                 // Display as HTML table
                 displayTable(data);
@@ -122,7 +134,28 @@
             URL.revokeObjectURL(url);
         }
 
+        function updateTemplateOutput() {
+            const template = templateInput.value;
+            if (!template || data.length <= 1) {
+                templateOutput.value = '';
+                return;
+            }
+
+            try {
+                const output = data.slice(1) // Skip headers
+                    .map(row => {
+                        // Use the `template` string with the row data
+                        return new Function('row', `return \`${template}\`;`)(row);
+                    })
+                    .join('\n');
+                templateOutput.value = output;
+            } catch (err) {
+                templateOutput.value = `Error: ${err.message}`;
+            }
+        }
+
         getClipboardButton.addEventListener('click', getClipboardData);
+        templateInput.addEventListener('input', updateTemplateOutput);
     </script>
 </body>
 </html>
