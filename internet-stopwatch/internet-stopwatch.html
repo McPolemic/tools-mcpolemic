@@ -44,7 +44,7 @@
     const resetBtn = document.getElementById('resetBtn');
 
     let intervalId = null;
-    let lastTitleUpdate = 0;
+    let titleIntervalId = null;
 
     function formatTime(ms, includeMilliseconds = true) {
       const totalSeconds = Math.floor(ms / 1000);
@@ -68,15 +68,22 @@
         elapsedTime += Date.now() - startTime;
       }
 
-      const formattedTime = formatTime(elapsedTime);
-      stopwatchDisplay.textContent = formattedTime;
+      stopwatchDisplay.textContent = formatTime(elapsedTime);
+    }
 
-      // Update title once per second
-      const now = Date.now();
-      if (isRunning && now - lastTitleUpdate >= 1000) {
+    function updateTitle() {
+      const isRunning = JSON.parse(localStorage.getItem('isRunning'));
+      const startTime = parseInt(localStorage.getItem('startTime'), 10) || 0;
+      const totalElapsed = parseInt(localStorage.getItem('totalElapsed'), 10) || 0;
+
+      let elapsedTime = totalElapsed;
+      if (isRunning && startTime) {
+        elapsedTime += Date.now() - startTime;
+      }
+
+      if (isRunning) {
         document.title = `${formatTime(elapsedTime, false)} - Stopwatch`;
-        lastTitleUpdate = now;
-      } else if (!isRunning) {
+      } else {
         document.title = 'Stopwatch';
       }
     }
@@ -87,6 +94,7 @@
       if (isRunning) {
         // Stop
         clearInterval(intervalId);
+        clearInterval(titleIntervalId);
         const startTime = parseInt(localStorage.getItem('startTime'), 10);
         const totalElapsed = parseInt(localStorage.getItem('totalElapsed'), 10) || 0;
         const elapsedSinceStart = Date.now() - startTime;
@@ -101,12 +109,14 @@
         localStorage.setItem('isRunning', true);
         startStopBtn.textContent = 'Stop';
 
-        intervalId = setInterval(updateDisplay, 1); // Update frequently for UI
+        intervalId = setInterval(updateDisplay, 50); // Update frequently for UI
+        titleIntervalId = setInterval(updateTitle, 1000); // Update title every second
       }
     }
 
     function reset() {
       clearInterval(intervalId);
+      clearInterval(titleIntervalId);
       localStorage.clear();
       stopwatchDisplay.textContent = '00:00:00.000';
       document.title = 'Stopwatch';
@@ -118,11 +128,13 @@
       const isRunning = JSON.parse(localStorage.getItem('isRunning')) || false;
       if (isRunning) {
         intervalId = setInterval(updateDisplay, 50); // Update frequently for UI
+        titleIntervalId = setInterval(updateTitle, 1000); // Update title every second
         startStopBtn.textContent = 'Stop';
       } else {
         startStopBtn.textContent = 'Start';
       }
       updateDisplay();
+      updateTitle(); // Ensure title reflects the current state
     }
 
     startStopBtn.addEventListener('click', startStop);
