@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Stopwatch</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+      background-color: #f4f4f9;
+    }
+    #stopwatch {
+      font-size: 3rem;
+      margin: 20px;
+    }
+    button {
+      font-size: 1rem;
+      margin: 5px;
+      padding: 10px 20px;
+      cursor: pointer;
+    }
+    .controls {
+      display: flex;
+      gap: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div id="stopwatch">00:00:00.000</div>
+  <div class="controls">
+    <button id="startStopBtn">Start</button>
+    <button id="resetBtn">Reset</button>
+  </div>
+
+  <script>
+    const stopwatchDisplay = document.getElementById('stopwatch');
+    const startStopBtn = document.getElementById('startStopBtn');
+    const resetBtn = document.getElementById('resetBtn');
+
+    let intervalId = null;
+    let lastTitleUpdate = 0;
+
+    function formatTime(ms, includeMilliseconds = true) {
+      const totalSeconds = Math.floor(ms / 1000);
+      const hours = String(Math.floor(totalSeconds / 3600)).padStart(2, '0');
+      const minutes = String(Math.floor((totalSeconds % 3600) / 60)).padStart(2, '0');
+      const seconds = String(totalSeconds % 60).padStart(2, '0');
+      if (includeMilliseconds) {
+        const milliseconds = String(ms % 1000).padStart(3, '0');
+        return `${hours}:${minutes}:${seconds}.${milliseconds}`;
+      }
+      return `${hours}:${minutes}:${seconds}`;
+    }
+
+    function updateDisplay() {
+      const isRunning = JSON.parse(localStorage.getItem('isRunning'));
+      const startTime = parseInt(localStorage.getItem('startTime'), 10) || 0;
+      const totalElapsed = parseInt(localStorage.getItem('totalElapsed'), 10) || 0;
+
+      let elapsedTime = totalElapsed;
+      if (isRunning && startTime) {
+        elapsedTime += Date.now() - startTime;
+      }
+
+      const formattedTime = formatTime(elapsedTime);
+      stopwatchDisplay.textContent = formattedTime;
+
+      // Update title once per second
+      const now = Date.now();
+      if (isRunning && now - lastTitleUpdate >= 1000) {
+        document.title = `${formatTime(elapsedTime, false)} - Stopwatch`;
+        lastTitleUpdate = now;
+      } else if (!isRunning) {
+        document.title = 'Stopwatch';
+      }
+    }
+
+    function startStop() {
+      const isRunning = JSON.parse(localStorage.getItem('isRunning')) || false;
+
+      if (isRunning) {
+        // Stop
+        clearInterval(intervalId);
+        const startTime = parseInt(localStorage.getItem('startTime'), 10);
+        const totalElapsed = parseInt(localStorage.getItem('totalElapsed'), 10) || 0;
+        const elapsedSinceStart = Date.now() - startTime;
+
+        localStorage.setItem('totalElapsed', totalElapsed + elapsedSinceStart);
+        localStorage.setItem('isRunning', false);
+        startStopBtn.textContent = 'Start';
+      } else {
+        // Start
+        const currentStartTime = Date.now();
+        localStorage.setItem('startTime', currentStartTime);
+        localStorage.setItem('isRunning', true);
+        startStopBtn.textContent = 'Stop';
+
+        intervalId = setInterval(updateDisplay, 1); // Update frequently for UI
+      }
+    }
+
+    function reset() {
+      clearInterval(intervalId);
+      localStorage.clear();
+      stopwatchDisplay.textContent = '00:00:00.000';
+      document.title = 'Stopwatch';
+      startStopBtn.textContent = 'Start';
+    }
+
+    // Initialize stopwatch state on load
+    function init() {
+      const isRunning = JSON.parse(localStorage.getItem('isRunning')) || false;
+      if (isRunning) {
+        intervalId = setInterval(updateDisplay, 50); // Update frequently for UI
+        startStopBtn.textContent = 'Stop';
+      } else {
+        startStopBtn.textContent = 'Start';
+      }
+      updateDisplay();
+    }
+
+    startStopBtn.addEventListener('click', startStop);
+    resetBtn.addEventListener('click', reset);
+
+    window.onload = init;
+  </script>
+</body>
+</html>
