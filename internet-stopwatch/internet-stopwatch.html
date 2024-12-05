@@ -28,6 +28,7 @@
     .controls {
       display: flex;
       gap: 10px;
+      flex-wrap: wrap;
     }
   </style>
 </head>
@@ -36,12 +37,14 @@
   <div class="controls">
     <button id="startStopBtn">Start</button>
     <button id="resetBtn">Reset</button>
+    <button id="copyLinkBtn">Copy Link</button>
   </div>
 
   <script>
     const stopwatchDisplay = document.getElementById('stopwatch');
     const startStopBtn = document.getElementById('startStopBtn');
     const resetBtn = document.getElementById('resetBtn');
+    const copyLinkBtn = document.getElementById('copyLinkBtn');
 
     let intervalId = null;
     let titleIntervalId = null;
@@ -82,7 +85,7 @@
       }
 
       if (isRunning) {
-        document.title = `${formatTime(elapsedTime, false)} - Stopwatch`;
+        document.title = `Stopwatch - ${formatTime(elapsedTime, false)}`;
       } else {
         document.title = 'Stopwatch';
       }
@@ -123,8 +126,40 @@
       startStopBtn.textContent = 'Start';
     }
 
+    function copyLink() {
+      const isRunning = JSON.parse(localStorage.getItem('isRunning'));
+      const startTime = localStorage.getItem('startTime') || 0;
+      const totalElapsed = localStorage.getItem('totalElapsed') || 0;
+
+      const url = new URL(window.location.href);
+      url.searchParams.set('isRunning', isRunning);
+      url.searchParams.set('startTime', startTime);
+      url.searchParams.set('totalElapsed', totalElapsed);
+
+      navigator.clipboard.writeText(url.href).then(() => {
+        alert('Link copied to clipboard!');
+      });
+    }
+
+    function applyUrlParams() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const isRunning = urlParams.get('isRunning');
+      const startTime = urlParams.get('startTime');
+      const totalElapsed = urlParams.get('totalElapsed');
+
+      if (isRunning !== null) localStorage.setItem('isRunning', isRunning);
+      if (startTime !== null) localStorage.setItem('startTime', startTime);
+      if (totalElapsed !== null) localStorage.setItem('totalElapsed', totalElapsed);
+
+      // Remove query parameters from the URL
+      const url = new URL(window.location.href);
+      url.search = '';
+      window.history.replaceState({}, document.title, url.href);
+    }
+
     // Initialize stopwatch state on load
     function init() {
+      applyUrlParams();
       const isRunning = JSON.parse(localStorage.getItem('isRunning')) || false;
       if (isRunning) {
         intervalId = setInterval(updateDisplay, 50); // Update frequently for UI
@@ -139,6 +174,7 @@
 
     startStopBtn.addEventListener('click', startStop);
     resetBtn.addEventListener('click', reset);
+    copyLinkBtn.addEventListener('click', copyLink);
 
     window.onload = init;
   </script>
