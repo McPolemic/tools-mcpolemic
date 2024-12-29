@@ -128,11 +128,14 @@
       }
 
       // Right Side (1949 → 2024)
-      let forwardValue = inputAmount;
-      for (let i = inflationRates.length - 1; i >= 0; i--) {
-        const year = 1949 + (inflationRates.length - 1 - i);
-        backwardList.innerHTML += `<li>$${forwardValue.toFixed(2)} in ${year}</li>`;
-        forwardValue *= (1 + inflationRates[i] / 100);
+      for (let startYear = 0; startYear < inflationRates.length; startYear++) {
+        const year = 1949 + startYear;
+        let cumulativeRate = 1;
+        for (let i = startYear; i < inflationRates.length; i++) {
+          cumulativeRate *= (1 + inflationRates[i] / 100);
+        }
+        const forwardValue = inputAmount * cumulativeRate;
+        backwardList.innerHTML += `<li>$${forwardValue.toFixed(2)} in 2024</li>`;
       }
     };
 
