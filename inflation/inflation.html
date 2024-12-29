@@ -119,25 +119,20 @@
       forwardList.innerHTML = '';
       backwardList.innerHTML = '';
 
-      let amountForward = inputAmount;
-
       // Left Side (2024 → 1949)
-      for (let i = 0; i < inflationRates.length; i++) {
-        const rate = inflationRates[i] / 100;
-        amountForward /= (1 + rate);
+      let backwardValue = inputAmount;
+      for (let i = 0; i <= inflationRates.length; i++) {
         const year = 2024 - i;
-        forwardList.innerHTML += `<li>$${amountForward.toFixed(2)} in ${year}</li>`;
+        if (i > 0) backwardValue /= (1 + inflationRates[i - 1] / 100);
+        forwardList.innerHTML += `<li>$${backwardValue.toFixed(2)} in ${year}</li>`;
       }
 
       // Right Side (1949 → 2024)
-      for (let startYear = 0; startYear < inflationRates.length; startYear++) {
-        let cumulativeRate = 1;
-        for (let i = startYear; i < inflationRates.length; i++) {
-          cumulativeRate *= (1 + inflationRates[i] / 100);
-        }
-        const year = 1949 + startYear;
-        const adjustedAmount = inputAmount * cumulativeRate;
-        backwardList.innerHTML += `<li>$${adjustedAmount.toFixed(2)} in ${year}</li>`;
+      let forwardValue = inputAmount;
+      for (let i = inflationRates.length - 1; i >= 0; i--) {
+        const year = 1949 + (inflationRates.length - 1 - i);
+        backwardList.innerHTML += `<li>$${forwardValue.toFixed(2)} in ${year}</li>`;
+        forwardValue *= (1 + inflationRates[i] / 100);
       }
     };
 
