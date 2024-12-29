@@ -106,6 +106,23 @@
       1.46, 1.01, 2.73, 3.34, 1.53, -0.28, 0.31, 0.82, 2.28, 7.86, 1.09, -0.97
     ];
 
+    // Helper function to calculate inflation
+    function calculateInflation(inputAmount, startYear, endYear, rates) {
+      let adjustedValue = inputAmount;
+      if (startYear < endYear) {
+        // Forward calculation (multiplication)
+        for (let i = startYear - 1949; i < endYear - 1949; i++) {
+          adjustedValue *= (1 + rates[i] / 100);
+        }
+      } else if (startYear > endYear) {
+        // Backward calculation (division)
+        for (let i = startYear - 1949; i > endYear - 1949; i--) {
+          adjustedValue /= (1 + rates[i - 1] / 100);
+        }
+      }
+      return adjustedValue;
+    }
+
     const dollarInput = document.getElementById('dollarInput');
     const forwardList = document.getElementById('forwardList');
     const backwardList = document.getElementById('backwardList');
@@ -114,32 +131,25 @@
       dollarInput.scrollIntoView({ behavior: 'smooth' });
     };
 
-    const calculateInflation = () => {
+    const calculateAndDisplay = () => {
       const inputAmount = parseFloat(dollarInput.value) || 0;
       forwardList.innerHTML = '';
       backwardList.innerHTML = '';
 
       // Left Side (2024 → 1949)
-      let backwardValue = inputAmount;
-      for (let i = 0; i < inflationRates.length; i++) {
-        const year = 2024 - i;
-        backwardValue /= (1 + inflationRates[i] / 100);
-        forwardList.innerHTML += `<li>$${backwardValue.toFixed(2)} in ${year}</li>`;
+      for (let year = 2024; year >= 1949; year--) {
+        const adjustedValue = calculateInflation(inputAmount, 2024, year, inflationRates);
+        forwardList.innerHTML += `<li>$${adjustedValue.toFixed(2)} in ${year}</li>`;
       }
 
       // Right Side (1949 → 2024)
-      for (let startYear = 0; startYear < inflationRates.length; startYear++) {
-        const year = 1949 + startYear;
-        let cumulativeRate = 1;
-        for (let i = startYear; i < inflationRates.length; i++) {
-          cumulativeRate *= (1 + inflationRates[i] / 100);
-        }
-        const forwardValue = inputAmount * cumulativeRate;
-        backwardList.innerHTML += `<li>$${forwardValue.toFixed(2)} in 2024 (from ${year})</li>`;
+      for (let year = 1949; year <= 2024; year++) {
+        const adjustedValue = calculateInflation(inputAmount, year, 2024, inflationRates);
+        backwardList.innerHTML += `<li>$${inputAmount.toFixed(2)} (${year}) → $${adjustedValue.toFixed(2)}</li>`;
       }
     };
 
-    dollarInput.addEventListener('input', calculateInflation);
+    dollarInput.addEventListener('input', calculateAndDisplay);
   </script>
 </body>
 </html>
