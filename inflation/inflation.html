@@ -25,6 +25,10 @@
       font-size: 16px;
       width: 300px;
       text-align: center;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      background: #fff;
     }
 
     .container {
@@ -43,6 +47,7 @@
       border: 1px solid #ddd;
       border-radius: 5px;
       background: #f9f9f9;
+      position: relative;
     }
 
     .results h2 {
@@ -58,6 +63,21 @@
       margin: 5px 0;
       font-size: 14px;
     }
+
+    .scroll-top {
+      margin-top: 10px;
+      padding: 5px 10px;
+      font-size: 14px;
+      border: none;
+      background-color: #007bff;
+      color: #fff;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .scroll-top:hover {
+      background-color: #0056b3;
+    }
   </style>
 </head>
 <body>
@@ -68,10 +88,12 @@
     <div class="results" id="forwardResults">
       <h2>2024 → 1949</h2>
       <ul id="forwardList"></ul>
+      <button class="scroll-top" onclick="scrollToInput()">Scroll to Top</button>
     </div>
     <div class="results" id="backwardResults">
       <h2>1949 → 2024</h2>
       <ul id="backwardList"></ul>
+      <button class="scroll-top" onclick="scrollToInput()">Scroll to Top</button>
     </div>
   </div>
 
@@ -88,6 +110,10 @@
     const forwardList = document.getElementById('forwardList');
     const backwardList = document.getElementById('backwardList');
 
+    const scrollToInput = () => {
+      dollarInput.scrollIntoView({ behavior: 'smooth' });
+    };
+
     const calculateInflation = () => {
       const inputAmount = parseFloat(dollarInput.value) || 0;
       forwardList.innerHTML = '';
@@ -100,7 +126,7 @@
         const rate = inflationRates[i] / 100;
         amountForward /= (1 + rate);
         const year = 2024 - i;
-        forwardList.innerHTML += `<li>$${inputAmount.toFixed(2)} in 2024 → $${amountForward.toFixed(2)} in ${year}</li>`;
+        forwardList.innerHTML += `<li>$${amountForward.toFixed(2)} in ${year}</li>`;
       }
 
       // Right Side (1949 → 2024)
@@ -111,7 +137,7 @@
         }
         const year = 1949 + startYear;
         const adjustedAmount = inputAmount * cumulativeRate;
-        backwardList.innerHTML += `<li>$${inputAmount.toFixed(2)} in ${year} → $${adjustedAmount.toFixed(2)} in 2024</li>`;
+        backwardList.innerHTML += `<li>$${adjustedAmount.toFixed(2)} in ${year}</li>`;
       }
     };
 
