@@ -91,7 +91,7 @@
       <button class="scroll-top" onclick="scrollToInput()">Scroll to Top</button>
     </div>
     <div class="results" id="backwardResults">
-      <h2>$10 in this year would be...</h2>
+      <h2>$10 in earlier years would be worth...</h2>
       <ul id="backwardList"></ul>
       <button class="scroll-top" onclick="scrollToInput()">Scroll to Top</button>
     </div>
@@ -106,14 +106,20 @@
       1.46, 1.01, 2.73, 3.34, 1.53, -0.28, 0.31, 0.82, 2.28, 7.86, 1.09, -0.97
     ];
 
-    // Format money to include commas and two decimal places
+    // Format money to include commas, round if possible
     function formatMoney(amount) {
-      return new Intl.NumberFormat("en-US", {
-        style: "currency",
-        currency: "USD",
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2,
-      }).format(amount);
+      const rounded = amount.toFixed(2);
+      return parseFloat(rounded) % 1 === 0
+        ? new Intl.NumberFormat("en-US", {
+              style: "currency",
+              currency: "USD",
+              minimumFractionDigits: 0,
+          }).format(amount)
+        : new Intl.NumberFormat("en-US", {
+              style: "currency",
+              currency: "USD",
+              minimumFractionDigits: 2,
+          }).format(amount);
     }
 
     // Helper function to calculate inflation
@@ -122,29 +128,38 @@
       if (startYear < endYear) {
         // Forward calculation (multiplication)
         for (let i = startYear - 1949; i < endYear - 1949; i++) {
-          adjustedValue *= (1 + rates[i] / 100);
+          adjustedValue *= 1 + rates[i] / 100;
         }
       } else if (startYear > endYear) {
         // Backward calculation (division)
         for (let i = startYear - 1949; i > endYear - 1949; i--) {
-          adjustedValue /= (1 + rates[i - 1] / 100);
+          adjustedValue /= 1 + rates[i - 1] / 100;
         }
       }
       return adjustedValue;
     }
 
-    const dollarInput = document.getElementById('dollarInput');
-    const forwardList = document.getElementById('forwardList');
-    const backwardList = document.getElementById('backwardList');
+    const dollarInput = document.getElementById("dollarInput");
+    const forwardList = document.getElementById("forwardList");
+    const backwardList = document.getElementById("backwardList");
+    const forwardHeader = document.querySelector("#forwardResults h2");
+    const backwardHeader = document.querySelector("#backwardResults h2");
 
     const scrollToInput = () => {
-      dollarInput.scrollIntoView({ behavior: 'smooth' });
+      dollarInput.scrollIntoView({ behavior: "smooth" });
     };
 
     const calculateAndDisplay = () => {
       const inputAmount = parseFloat(dollarInput.value) || 0;
-      forwardList.innerHTML = '';
-      backwardList.innerHTML = '';
+      const formattedAmount = formatMoney(inputAmount);
+
+      // Update headers
+      forwardHeader.textContent = `${formattedAmount} in 2024 would be...`;
+      backwardHeader.textContent = `${formattedAmount} in earlier years would be...`;
+
+      // Clear lists
+      forwardList.innerHTML = "";
+      backwardList.innerHTML = "";
 
       // Left Side (2024 → 1949)
       for (let year = 2024; year >= 1949; year--) {
@@ -159,7 +174,7 @@
       }
     };
 
-    dollarInput.addEventListener('input', calculateAndDisplay);
+    dollarInput.addEventListener("input", calculateAndDisplay);
   </script>
 </body>
 </html>
