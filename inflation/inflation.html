@@ -86,12 +86,12 @@
   
   <div class="container">
     <div class="results" id="forwardResults">
-      <h2>2024 → 1949</h2>
+      <h2>$10 in 2024 would be...</h2>
       <ul id="forwardList"></ul>
       <button class="scroll-top" onclick="scrollToInput()">Scroll to Top</button>
     </div>
     <div class="results" id="backwardResults">
-      <h2>1949 → 2024</h2>
+      <h2>$10 in earlier years would be worth...</h2>
       <ul id="backwardList"></ul>
       <button class="scroll-top" onclick="scrollToInput()">Scroll to Top</button>
     </div>
@@ -139,13 +139,13 @@
       // Left Side (2024 → 1949)
       for (let year = 2024; year >= 1949; year--) {
         const adjustedValue = calculateInflation(inputAmount, 2024, year, inflationRates);
-        forwardList.innerHTML += `<li>$${adjustedValue.toFixed(2)} in ${year}</li>`;
+        forwardList.innerHTML += `<li>$${adjustedValue.toFixed(2)} (${year})</li>`;
       }
 
       // Right Side (1949 → 2024)
       for (let year = 1949; year <= 2024; year++) {
         const adjustedValue = calculateInflation(inputAmount, year, 2024, inflationRates);
-        backwardList.innerHTML += `<li>$${inputAmount.toFixed(2)} (${year}) → $${adjustedValue.toFixed(2)}</li>`;
+        backwardList.innerHTML += `<li>${year}: $${adjustedValue.toFixed(2)} (2024)</li>`;
       }
     };
 
