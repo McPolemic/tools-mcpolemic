@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vet Tech Medication Calculator</title>
+    <style>
+        /* Light mode (default) */
+        :root {
+            --bg-color: #f3f4f6;
+            --card-bg: white;
+            --text-color: #1f2937;
+            --input-bg: white;
+            --input-border: #e5e7eb;
+            --result-bg: #f9fafb;
+            --highlight: #3b82f6;
+        }
+
+        /* Dark mode */
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg-color: #111827;
+                --card-bg: #1f2937;
+                --text-color: #f3f4f6;
+                --input-bg: #374151;
+                --input-border: #4b5563;
+                --result-bg: #374151;
+                --highlight: #60a5fa;
+            }
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: system-ui, -apple-system, sans-serif;
+            margin: 0;
+            padding: 2rem 1rem;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 32rem;
+            margin: 0 auto;
+            background-color: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        input {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid var(--input-border);
+            border-radius: 0.25rem;
+            background-color: var(--input-bg);
+            color: var(--text-color);
+            margin-bottom: 1rem;
+        }
+
+        button {
+            width: 100%;
+            padding: 0.5rem 1rem;
+            background-color: var(--highlight);
+            color: white;
+            border: none;
+            border-radius: 0.25rem;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        button:hover {
+            opacity: 0.9;
+        }
+
+        #results {
+            margin-top: 2rem;
+            display: none;
+        }
+
+        #results.visible {
+            display: block;
+        }
+
+        .results-container {
+            background-color: var(--result-bg);
+            padding: 1rem;
+            border-radius: 0.5rem;
+        }
+
+        .result-item {
+            margin-bottom: 0.75rem;
+        }
+
+        .result-item:last-child {
+            margin-bottom: 0;
+            padding-top: 0.75rem;
+            border-top: 1px solid var(--input-border);
+        }
+
+        .final-result {
+            color: var(--highlight);
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Vet Tech Medication Calculator</h1>
+        
+        <form id="calculator-form">
+            <div class="form-group">
+                <label>Patient Weight (lbs)</label>
+                <input type="number" id="weight-lbs" step="0.1" required>
+            </div>
+
+            <div class="form-group">
+                <label>Dose (mg/kg)</label>
+                <input type="number" id="dose-mg-kg" step="0.1" required>
+            </div>
+
+            <div class="form-group">
+                <label>Medication Concentration (%)</label>
+                <input type="number" id="concentration" step="0.01" required>
+            </div>
+
+            <button type="submit">Calculate</button>
+        </form>
+
+        <div id="results">
+            <h2>Results</h2>
+            
+            <div class="results-container">
+                <div class="result-item">
+                    <span class="label">Weight in kg:</span>
+                    <span id="weight-kg"></span>
+                </div>
+                
+                <div class="result-item">
+                    <span class="label">Total dose needed (mg):</span>
+                    <span id="total-dose"></span>
+                </div>
+                
+                <div class="result-item">
+                    <span class="label">Medication concentration (mg/mL):</span>
+                    <span id="concentration-mg-ml"></span>
+                </div>
+                
+                <div class="result-item">
+                    <span class="label">Final volume to administer:</span>
+                    <span id="final-volume" class="final-result"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('calculator-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Get input values
+            const weightLbs = parseFloat(document.getElementById('weight-lbs').value);
+            const doseMgKg = parseFloat(document.getElementById('dose-mg-kg').value);
+            const concentrationPercent = parseFloat(document.getElementById('concentration').value);
+            
+            // Calculations
+            const weightKg = weightLbs / 2.2;
+            const totalDoseMg = weightKg * doseMgKg;
+            const concentrationMgMl = concentrationPercent * 10;
+            const finalVolumeMl = totalDoseMg / concentrationMgMl;
+            
+            // Display results
+            const results = document.getElementById('results');
+            results.style.display = 'block';
+            document.getElementById('weight-kg').textContent = weightKg.toFixed(2) + ' kg';
+            document.getElementById('total-dose').textContent = totalDoseMg.toFixed(2) + ' mg';
+            document.getElementById('concentration-mg-ml').textContent = concentrationMgMl.toFixed(2) + ' mg/mL';
+            document.getElementById('final-volume').textContent = finalVolumeMl.toFixed(2) + ' mL';
+        });
+    </script>
+</body>
+</html>
