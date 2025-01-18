@@ -129,17 +129,17 @@
         <form id="calculator-form">
             <div class="form-group">
                 <label>Patient Weight (lbs)</label>
-                <input type="number" id="weight-lbs" step="0.1" required>
+                <input type="number" id="weight-lbs" step="0.1" required inputmode="decimal" pattern="[0-9]*[.]?[0-9]*">
             </div>
 
             <div class="form-group">
                 <label>Dose (mg/kg)</label>
-                <input type="number" id="dose-mg-kg" step="0.1" required>
+                <input type="number" id="dose-mg-kg" step="0.1" required inputmode="decimal" pattern="[0-9]*[.]?[0-9]*">
             </div>
 
             <div class="form-group">
                 <label>Medication Concentration (%)</label>
-                <input type="number" id="concentration" step="0.01" required>
+                <input type="number" id="concentration" step="0.01" required inputmode="decimal" pattern="[0-9]*[.]?[0-9]*">
             </div>
 
             <button type="submit">Calculate</button>
