@@ -143,6 +143,9 @@
             </div>
 
             <button type="submit">Calculate</button>
+            <button type="button" id="copy-link" style="margin-top: 0.5rem; background-color: var(--card-bg); border: 1px solid var(--highlight); color: var(--highlight);">
+                Copy Link to Calculation
+            </button>
         </form>
 
         <div id="results">
@@ -173,13 +176,15 @@
     </div>
 
     <script>
-        document.getElementById('calculator-form').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            // Get input values
+        // Function to perform calculations and show results
+        function calculateAndShowResults() {
             const weightLbs = parseFloat(document.getElementById('weight-lbs').value);
             const doseMgKg = parseFloat(document.getElementById('dose-mg-kg').value);
             const concentrationPercent = parseFloat(document.getElementById('concentration').value);
+            
+            if (isNaN(weightLbs) || isNaN(doseMgKg) || isNaN(concentrationPercent)) {
+                return;
+            }
             
             // Calculations
             const weightKg = weightLbs / 2.2;
@@ -194,6 +199,60 @@
             document.getElementById('total-dose').textContent = totalDoseMg.toFixed(2) + ' mg';
             document.getElementById('concentration-mg-ml').textContent = concentrationMgMl.toFixed(2) + ' mg/mL';
             document.getElementById('final-volume').textContent = finalVolumeMl.toFixed(2) + ' mL';
+        }
+
+        // Handle URL parameters on page load
+        window.addEventListener('load', function() {
+            const params = new URLSearchParams(window.location.search);
+            const weight = params.get('weight');
+            const dose = params.get('dose');
+            const concentration = params.get('concentration');
+
+            if (weight) document.getElementById('weight-lbs').value = weight;
+            if (dose) document.getElementById('dose-mg-kg').value = dose;
+            if (concentration) document.getElementById('concentration').value = concentration;
+
+            // If all parameters are present, calculate automatically
+            if (weight && dose && concentration) {
+                calculateAndShowResults();
+            }
+        });
+
+        // Copy link button handler
+        document.getElementById('copy-link').addEventListener('click', function() {
+            const weight = document.getElementById('weight-lbs').value;
+            const dose = document.getElementById('dose-mg-kg').value;
+            const concentration = document.getElementById('concentration').value;
+            
+            if (!weight || !dose || !concentration) {
+                alert('Please fill in all fields first');
+                return;
+            }
+
+            const url = new URL(window.location.href);
+            url.search = new URLSearchParams({
+                weight: weight,
+                dose: dose,
+                concentration: concentration
+            }).toString();
+
+            navigator.clipboard.writeText(url.toString())
+                .then(() => {
+                    const originalText = this.textContent;
+                    this.textContent = 'Copied!';
+                    setTimeout(() => {
+                        this.textContent = originalText;
+                    }, 2000);
+                })
+                .catch(() => {
+                    alert('Failed to copy link. Please copy the URL manually.');
+                });
+        });
+
+        // Form submit handler
+        document.getElementById('calculator-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            calculateAndShowResults();
         });
     </script>
 </body>
