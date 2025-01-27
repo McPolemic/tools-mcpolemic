@@ -128,8 +128,8 @@
         
         <form id="calculator-form">
             <div class="form-group">
-                <label>Patient Weight (lbs)</label>
-                <input type="number" id="weight-lbs" step="0.1" required inputmode="decimal" pattern="[0-9]*[.]?[0-9]*">
+                <label>Patient Weight (kg)</label>
+                <input type="number" id="weight-kg" step="0.1" required inputmode="decimal" pattern="[0-9]*[.]?[0-9]*">
             </div>
 
             <div class="form-group">
@@ -153,8 +153,8 @@
             
             <div class="results-container">
                 <div class="result-item">
-                    <span class="label">Weight in kg:</span>
-                    <span id="weight-kg"></span>
+                    <span class="label">Weight in lbs:</span>
+                    <span id="weight-lbs"></span>
                 </div>
                 
                 <div class="result-item">
@@ -178,23 +178,23 @@
     <script>
         // Function to perform calculations and show results
         function calculateAndShowResults() {
-            const weightLbs = parseFloat(document.getElementById('weight-lbs').value);
+            const weightKg = parseFloat(document.getElementById('weight-kg').value);
             const doseMgKg = parseFloat(document.getElementById('dose-mg-kg').value);
             const concentrationMgMl = parseFloat(document.getElementById('concentration').value);
             
-            if (isNaN(weightLbs) || isNaN(doseMgKg) || isNaN(concentrationMgMl)) {
+            if (isNaN(weightKg) || isNaN(doseMgKg) || isNaN(concentrationMgMl)) {
                 return;
             }
             
             // Calculations
-            const weightKg = weightLbs / 2.2;
+            const weightLbs = weightKg * 2.20462; // kg to lbs conversion
             const totalDoseMg = weightKg * doseMgKg;
             const finalVolumeMl = totalDoseMg / concentrationMgMl;
             
             // Display results
             const results = document.getElementById('results');
             results.style.display = 'block';
-            document.getElementById('weight-kg').textContent = weightKg.toFixed(2) + ' kg';
+            document.getElementById('weight-lbs').textContent = weightLbs.toFixed(2) + ' lbs';
             document.getElementById('total-dose').textContent = totalDoseMg.toFixed(2) + ' mg';
             document.getElementById('concentration-mg-ml').textContent = concentrationMgMl.toFixed(2) + ' mg/mL';
             document.getElementById('final-volume').textContent = finalVolumeMl.toFixed(2) + ' mL';
@@ -207,7 +207,7 @@
             const dose = params.get('dose');
             const concentration = params.get('concentration');
 
-            if (weight) document.getElementById('weight-lbs').value = weight;
+            if (weight) document.getElementById('weight-kg').value = weight;
             if (dose) document.getElementById('dose-mg-kg').value = dose;
             if (concentration) document.getElementById('concentration').value = concentration;
 
@@ -219,7 +219,7 @@
 
         // Copy link button handler
         document.getElementById('copy-link').addEventListener('click', function() {
-            const weight = document.getElementById('weight-lbs').value;
+            const weight = document.getElementById('weight-kg').value;
             const dose = document.getElementById('dose-mg-kg').value;
             const concentration = document.getElementById('concentration').value;
             
