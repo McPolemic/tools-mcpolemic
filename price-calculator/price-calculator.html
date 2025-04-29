@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bulk Purchase Unit Price Calculator</title>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      margin: 2rem;
+      background: #f9fafb;
+      color: #111827;
+      line-height: 1.5;
+    }
+
+    h1 {
+      font-size: 1.75rem;
+      font-weight: 700;
+      margin-bottom: 1.5rem;
+    }
+
+    label {
+      display: block;
+      margin-top: 1rem;
+      font-weight: 600;
+    }
+
+    input[type="number"] {
+      width: 100%;
+      padding: 0.5rem 0.75rem;
+      margin-top: 0.25rem;
+      border: 1px solid #d1d5db;
+      border-radius: 0.375rem;
+      font-size: 1rem;
+      transition: border-color 0.2s;
+    }
+
+    input[type="number"]:focus {
+      outline: none;
+      border-color: #2563eb;
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.3);
+    }
+
+    .output {
+      margin-top: 1.75rem;
+      font-size: 1.25rem;
+      font-weight: 700;
+    }
+  </style>
+</head>
+<body>
+  <h1>Bulk Purchase Unit Price Calculator</h1>
+
+  <label for="price">Total Price ($)</label>
+  <input
+    id="price"
+    type="number"
+    step="0.01"
+    min="0"
+    placeholder="e.g. 19.99"
+    autocomplete="off"
+  />
+
+  <label for="quantity">Quantity</label>
+  <input
+    id="quantity"
+    type="number"
+    step="1"
+    min="1"
+    placeholder="e.g. 24"
+    autocomplete="off"
+  />
+
+  <div class="output" id="unitPrice">Unit Price: —</div>
+
+  <script>
+    const priceInput = document.getElementById("price");
+    const qtyInput = document.getElementById("quantity");
+    const unitDisplay = document.getElementById("unitPrice");
+
+    function updateUnitPrice() {
+      const price = parseFloat(priceInput.value);
+      const qty = parseFloat(qtyInput.value);
+
+      if (isFinite(price) && price > 0 && isFinite(qty) && qty > 0) {
+        const unit = price / qty;
+        unitDisplay.textContent = `Unit Price: $${unit.toFixed(2)}`;
+      } else {
+        unitDisplay.textContent = "Unit Price: —";
+      }
+    }
+
+    priceInput.addEventListener("input", updateUnitPrice);
+    qtyInput.addEventListener("input", updateUnitPrice);
+  </script>
+</body>
+</html>
