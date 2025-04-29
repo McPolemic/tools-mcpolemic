@@ -5,5 +5,6 @@
 - [Stopwatch](/internet-stopwatch/internet-stopwatch.html)
 - [Inflation Calculator](/inflation/inflation.html)
 - [Medication Calculator](/medication-calculator/medication-calculator.html)
+- [Bulk Purchase Price Calculator](/price-calculator/price-calculator.html)
 
 If you have any questions or run into issues, feel free to reach out!
